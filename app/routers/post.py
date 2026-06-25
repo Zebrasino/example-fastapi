@@ -26,7 +26,20 @@ async def get_posts(db: Session = Depends(get_db),current_user = Depends(oauth2.
                     limit: int = 10, skip: int = 0, search: Optional[str] = ""):
     # cursor.execute(""" SELECT * FROM posts """)
     # posts = cursor.fetchall()
-    posts = db.query(models.Post, func.count(models.Vote.id_post).label("votes")).join(models.Vote,models.Post.id == models.Vote.id_post,isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    posts = (
+        db.query(
+            models.Post,
+            func.count(func.distinct(models.Vote.id_user)).label("votes"),
+            func.count(func.distinct(models.Retweet.id_user)).label("retweets"),
+        )
+        .join(models.Vote, models.Post.id == models.Vote.id_post, isouter=True)
+        .join(models.Retweet, models.Post.id == models.Retweet.id_post, isouter=True)
+        .group_by(models.Post.id) 
+        .filter(models.Post.title.contains(search))
+        .limit(limit)
+        .offset(skip)
+        .all()
+    )
 
     return posts
 
@@ -34,7 +47,17 @@ async def get_posts(db: Session = Depends(get_db),current_user = Depends(oauth2.
 async def get_post(id: int, db: Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)):
    # cursor.execute(""" SELECT * FROM posts WHERE id = %s""",(str(id)))
    # post = cursor.fetchone()
-    post_query = db.query(models.Post, func.count(models.Vote.id_post).label("votes")).join(models.Vote, models.Post.id == models.Vote.id_post, isouter=True).group_by(models.Post.id).filter(models.Post.id == id)
+    post_query = (
+        db.query(
+            models.Post,
+            func.count(func.distinct(models.Vote.id_user)).label("votes"),
+            func.count(func.distinct(models.Retweet.id_user)).label("retweets"),
+        )
+        .join(models.Vote, models.Post.id == models.Vote.id_post, isouter=True)
+        .join(models.Retweet, models.Post.id == models.Retweet.id_post, isouter=True)
+        .group_by(models.Post.id)
+        .filter(models.Post.id == id)
+    )
     
     post = post_query.first()
     

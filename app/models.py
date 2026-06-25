@@ -31,3 +31,10 @@ class Vote(Base):
     
     id_user = Column(ForeignKey("users.id",ondelete="CASCADE"), primary_key=True)
     id_post = Column(ForeignKey("posts.id",ondelete="CASCADE"), primary_key=True)
+
+
+class Retweet(Base):
+    __tablename__ = "retweets"
+
+    id_user = Column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    id_post = Column(ForeignKey("posts.id", ondelete="CASCADE"), primary_key=True)

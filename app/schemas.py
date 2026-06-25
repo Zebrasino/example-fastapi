@@ -32,7 +32,8 @@ class Post(PostBase):
 class PostOut(BaseModel):
     Post: Post
     votes: int
-    
+    retweets: int
+
     model_config = ConfigDict(from_attributes=True)
         
 
@@ -50,3 +51,8 @@ class TokenData(BaseModel):
 class Vote(BaseModel):
     id_post: int
     dir: int = Field(ge=0,le=1)
+
+
+class Retweet(BaseModel):
+    id_post: int
+    dir: int = Field(ge=0, le=1)
